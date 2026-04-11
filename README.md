@@ -123,17 +123,17 @@ AI cannot create 100% of a game by itself — it struggles with complex UI layou
 ## Architecture
 
 ```
-┌─────────────┐    MCP (stdio)    ┌─────────────┐   WebSocket    ┌──────────────┐
-│  AI Client   │◄────────────────►│  MCP Server  │◄─────────────►│ Godot Editor │
-│  (Claude,    │                  │  (Node.js)   │   port 6505   │  (Plugin)    │
-│   Cursor)    │                  │              │               │              │
+┌─────────────┐    MCP (stdio)   ┌──────────────┐   WebSocket   ┌──────────────┐
+│  AI Client  │◄────────────────►│  MCP Server  │◄─────────────►│ Godot Editor │
+│  (Claude,   │                  │  (Node.js)   │   port 6505   │  (Plugin)    │
+│   Cursor)   │                  │              │               │              │
 └─────────────┘                  │  Visualizer  │               │  42 tool     │
                                  │  HTTP :6510  │               │  handlers    │
                                  └──────┬───────┘               └──────────────┘
                                         │
                                  ┌──────▼───────┐
-                                 │   Browser     │
-                                 │  Visualizer   │
+                                 │   Browser    │
+                                 │  Visualizer  │
                                  └──────────────┘
 ```
 
