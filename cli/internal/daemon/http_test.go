@@ -69,3 +69,15 @@ func TestToolNotConnectedIsError(t *testing.T) {
 		t.Fatal("expected isError when Godot not connected")
 	}
 }
+
+func TestLastActivityAdvancesOnRequest(t *testing.T) {
+	b := bridge.New(0, time.Second)
+	h := NewHandler(b, "0.1.0", 63)
+	before := h.LastActivity()
+	time.Sleep(5 * time.Millisecond)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/health", nil))
+	if !h.LastActivity().After(before) {
+		t.Fatalf("LastActivity did not advance: before=%v after=%v", before, h.LastActivity())
+	}
+}

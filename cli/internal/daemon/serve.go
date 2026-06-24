@@ -16,6 +16,8 @@ import (
 	"github.com/tomyud1/godot-mcp/cli/internal/schema"
 )
 
+const idlePollInterval = 5 * time.Second
+
 // Serve runs the daemon: WebSocket bridge + HTTP control API, with idle
 // shutdown and signal handling. It blocks until shutdown.
 func Serve() error {
@@ -53,7 +55,7 @@ func Serve() error {
 
 	// Idle-shutdown watcher: exit when no Godot and no recent HTTP activity.
 	idle := config.IdleTimeout()
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(idlePollInterval)
 	defer ticker.Stop()
 	for {
 		select {

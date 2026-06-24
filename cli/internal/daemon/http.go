@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"sync"
@@ -119,7 +120,7 @@ func (h *Handler) execute(name string, args map[string]any) wire.ToolCallResult 
 	if err != nil {
 		payload := map[string]any{"error": err.Error(), "tool": name, "args": args, "mode": "live"}
 		var te *bridge.ToolError
-		if asToolError(err, &te) && len(te.Details) > 0 {
+		if errors.As(err, &te) && len(te.Details) > 0 {
 			var d map[string]any
 			if json.Unmarshal(te.Details, &d) == nil {
 				delete(d, "ok")
@@ -139,14 +140,6 @@ func nilIfEmpty(s string) any {
 		return nil
 	}
 	return s
-}
-
-func asToolError(err error, target **bridge.ToolError) bool {
-	if te, ok := err.(*bridge.ToolError); ok {
-		*target = te
-		return true
-	}
-	return false
 }
 
 func okResult(payload map[string]any) wire.ToolCallResult {
