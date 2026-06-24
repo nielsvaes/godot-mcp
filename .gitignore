@@ -36,3 +36,6 @@ _deleteme/
 # Go
 /gdcli
 *.test
+
+# SDD scratch (briefs, reports, ledger, review packages)
+.superpowers/
