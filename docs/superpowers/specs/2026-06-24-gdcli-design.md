@@ -1,8 +1,23 @@
 # Design: `gdcli` — a Go CLI front-end for Godot MCP
 
 - **Date:** 2026-06-24
-- **Status:** Approved (pending spec review)
+- **Status:** Approved — building (autonomous `/write-it`)
 - **Author:** Niels Vaes (with Claude)
+
+## Goal
+
+Ship `gdcli`, a single pure-Go binary that exposes every Godot MCP tool as a
+scriptable shell command, with no Node dependency and no changes to the Godot
+addon.
+
+## User value
+
+- Drive a live Godot editor from shell scripts and pipelines (`gdcli ... | jq`),
+  not only from an AI agent.
+- One self-contained Go binary that "feels cleaner" than running an MCP server
+  for non-agent use.
+- Coexists with the existing MCP workflow: if an AI client already has the Node
+  server running, `gdcli` routes through it instead of fighting over the port.
 
 ## Context & problem
 
@@ -47,6 +62,47 @@ can only touch project files, not the live editor session or running game.)
 | Daemon idle-shutdown | **Yes** | Auto-cleanup; daemon need not outlive use |
 | Browser visualizer in v1 | **No** | Browser/interactive, not CLI-shaped; large port; Node still serves it |
 | MCP-over-stdio in Go in v1 | **No** | Biggest scope item; deferred. Node still serves AI clients |
+
+### Decisions made autonomously during planning
+
+- **Go module lives at repo root** (`go.mod`, module `github.com/tomyud1/godot-mcp`).
+  Required because `go:embed` cannot reference parent directories — the embed of
+  `schemas/tools.json` must come from a package at or below the module root. The
+  embed shim is `schemas/embed.go` (package `schemas`), co-located with the JSON.
+- **Libraries:** `github.com/spf13/cobra` for the CLI, `github.com/gorilla/websocket`
+  for the bridge's WS server, stdlib `net/http` for the `:6506` API.
+- **`gdcli`'s probe is lenient:** any `GET /health` that returns 200 with a
+  `version` field is treated as a usable bridge — Go daemon *or* Node primary —
+  and `gdcli` never evicts it. (Contrast: the Node server's own startup evicts a
+  primary whose version/tool_count differs from its own.)
+- **Eviction is one-directional and acceptable:** if a `gdcli` daemon is running
+  and an AI client then starts the Node server, the Node server will evict the
+  `gdcli` daemon (version/tool_count mismatch) and become the bridge; subsequent
+  `gdcli` calls then route through that Node primary. The reverse never happens.
+  Documented so the transient eviction isn't surprising. Upgrading a running
+  `gdcli` daemon requires `gdcli stop` first (no self-eviction in v1).
+- **`get_godot_status` is answered locally by the daemon** (reports bridge
+  connection state), mirroring the Node server; it is not routed to Godot.
+- **`get_guide` is not ported to v1.** It exists in the Node server only to feed
+  MCP clients that lack resource support; CLI users have `gdcli describe` and
+  `--help`. Documented as out of scope.
+- **`/health` reports** `{ server: "gdcli", version, tool_count }`; `tool_count`
+  is the number of loaded schema tools.
+
+## Constraints
+
+- **Godot addon must not change.** The Go bridge must speak the existing wire
+  protocol byte-compatibly (`tool_invoke`/`tool_result`/`godot_ready`/`ping`/
+  `pong`/`client_status`/`runtime_status`).
+- **Existing Node behavior must not regress.** The TS schema-extraction refactor
+  must leave `allTools` identical; the existing vitest suite passing is the
+  acceptance bar.
+- **Ports are shared with the Node server** (`:6505` WS, `:6506` HTTP) and a
+  bridge is singular — only one process owns the Godot connection at a time.
+- **Cross-platform:** localhost TCP only (no unix sockets), so the daemon spawn
+  and control channel work on macOS, Linux, and Windows.
+- **Go toolchain required** to build/test (installed via Homebrew during this
+  build; documented in the handoff).
 
 ## Architecture
 
@@ -172,6 +228,10 @@ to consume it; coexistence with a running Node primary.
 **Out of v1 (remain the Node server's job):** the `:6510` browser visualizer
 (`gdcli map-project` emits JSON only); MCP-over-stdio in Go; multi-AI-client proxy
 fan-out.
+
+## Open questions
+
+None blocking. All material design decisions are recorded above (see Decisions).
 
 ## Future phases (not committed)
 
