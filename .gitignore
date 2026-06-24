@@ -26,3 +26,9 @@ dist/
 
 # Cursor
 .cursor/
+
+# Generated from schemas/tools.json
+mcp-server/src/tools/generated-tools.ts
+
+# Quarantined files pending user review (write-it deletion protocol)
+_deleteme/
