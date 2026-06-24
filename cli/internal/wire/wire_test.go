@@ -18,7 +18,10 @@ func TestToolCallResultOmitsIsErrorWhenFalse(t *testing.T) {
 }
 
 func TestHealthResponseTags(t *testing.T) {
-	b, _ := json.Marshal(HealthResponse{Server: "gdcli", Version: "0.1.0", ToolCount: 63})
+	b, err := json.Marshal(HealthResponse{Server: "gdcli", Version: "0.1.0", ToolCount: 63})
+	if err != nil {
+		t.Fatal(err)
+	}
 	want := `{"server":"gdcli","version":"0.1.0","tool_count":63}`
 	if string(b) != want {
 		t.Fatalf("got %s, want %s", string(b), want)

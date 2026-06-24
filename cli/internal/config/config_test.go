@@ -10,6 +10,7 @@ func TestDefaults(t *testing.T) {
 	os.Unsetenv("GODOT_MCP_PORT")
 	os.Unsetenv("GODOT_MCP_HTTP_PORT")
 	os.Unsetenv("GODOT_MCP_TIMEOUT_MS")
+	os.Unsetenv("GODOT_MCP_IDLE_TIMEOUT_MS")
 	if WebSocketPort() != 6505 {
 		t.Fatalf("WebSocketPort default = %d, want 6505", WebSocketPort())
 	}
@@ -18,6 +19,9 @@ func TestDefaults(t *testing.T) {
 	}
 	if ToolTimeout() != 30000*time.Millisecond {
 		t.Fatalf("ToolTimeout default = %v", ToolTimeout())
+	}
+	if IdleTimeout() != 30000*time.Millisecond {
+		t.Fatalf("IdleTimeout default = %v", IdleTimeout())
 	}
 }
 
