@@ -26,6 +26,9 @@ func TestSchemaMatchesAddonHandlers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(tools) == 0 {
+		t.Fatal("no tools loaded from contract")
+	}
 	editorMap := readFile(t, "addons/godot_mcp/tool_executor.gd")
 	runtimeDispatch := readFile(t, "addons/godot_mcp/runtime/mcp_runtime.gd")
 

@@ -38,9 +38,6 @@ func Execute() int {
 	if err := NewRootCmd().Execute(); err != nil {
 		var ee *client.ExitError
 		if errors.As(err, &ee) {
-			if ee.Err != nil {
-				// RunTool already printed user-facing output; nothing to add.
-			}
 			return ee.Code
 		}
 		fmt.Fprintln(os.Stderr, "Error:", err)

@@ -36,7 +36,7 @@ func BuildToolCommand(t Tool, run func(toolName string, args map[string]any) err
 		case prop.Type == "boolean":
 			cmd.Flags().Bool(propName, false, help)
 		default: // array, object, or untyped → JSON value
-			cmd.Flags().String(propName, "", strings.TrimSpace(help)+" (JSON)")
+			cmd.Flags().String(propName, "", help+" (JSON)")
 			jsonFlags[propName] = true
 		}
 	}

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -90,8 +91,9 @@ func spawnDaemon() error {
 	}
 	logPath := daemonLogPath()
 	var out io.Writer = io.Discard
-	if f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644); err == nil {
-		out = f
+	if logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644); err == nil {
+		out = logFile
+		defer logFile.Close()
 	}
 	cmd := exec.Command(exe, "serve")
 	cmd.Stdout = out
@@ -105,9 +107,9 @@ func daemonLogPath() string {
 	if err != nil {
 		dir = os.TempDir()
 	}
-	d := dir + string(os.PathSeparator) + "gdcli"
+	d := filepath.Join(dir, "gdcli")
 	_ = os.MkdirAll(d, 0o755)
-	return d + string(os.PathSeparator) + "daemon.log"
+	return filepath.Join(d, "daemon.log")
 }
 
 // CallTool POSTs a tool call to the bridge and returns the result.

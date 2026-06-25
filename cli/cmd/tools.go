@@ -56,9 +56,15 @@ func newDescribeCmd() *cobra.Command {
 			for _, r := range t.InputSchema.Required {
 				required[r] = true
 			}
+			propNames := make([]string, 0, len(t.InputSchema.Properties))
+			for propName := range t.InputSchema.Properties {
+				propNames = append(propNames, propName)
+			}
+			sort.Strings(propNames)
 			tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, "FLAG\tTYPE\tREQUIRED\tDESCRIPTION")
-			for propName, prop := range t.InputSchema.Properties {
+			for _, propName := range propNames {
+				prop := t.InputSchema.Properties[propName]
 				typ := prop.Type
 				if len(prop.Enum) > 0 {
 					typ = "enum(" + strings.Join(prop.Enum, "|") + ")"
