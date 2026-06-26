@@ -148,6 +148,22 @@ AI cannot create 100% of a game by itself — it struggles with complex UI layou
 
 ---
 
+## Go CLI (`gdcli`)
+
+Prefer a scriptable shell tool over an MCP server? `gdcli` is a single Go binary
+that exposes the same Godot tools on the command line. It auto-manages a
+background daemon that hosts the bridge, and coexists with the MCP server.
+
+```bash
+go build -o gdcli ./cli
+./gdcli add-node --name Player --type CharacterBody2D --parent /root/Main
+```
+
+See [`cli/README.md`](./cli/README.md) for full usage. Tool schemas are shared
+with the MCP server via [`schemas/tools.json`](./schemas/tools.json).
+
+---
+
 ## Development
 
 To build from source instead of using npm:

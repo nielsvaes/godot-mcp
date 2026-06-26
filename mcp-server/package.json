@@ -17,14 +17,14 @@
     "scripts"
   ],
   "scripts": {
-    "build": "tsc && node scripts/build-visualizer.js",
+    "build": "node scripts/sync-schemas.mjs && tsc && node scripts/build-visualizer.js",
     "build:visualizer": "node scripts/build-visualizer.js",
     "prepare": "npm run build",
     "start": "node dist/index.js",
-    "dev": "tsc && node scripts/build-visualizer.js && node dist/index.js",
-    "watch": "tsc --watch",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "dev": "node scripts/sync-schemas.mjs && tsc && node scripts/build-visualizer.js && node dist/index.js",
+    "watch": "node scripts/sync-schemas.mjs && tsc --watch",
+    "test": "node scripts/sync-schemas.mjs && vitest run",
+    "test:watch": "node scripts/sync-schemas.mjs && vitest"
   },
   "keywords": [
     "mcp",
